@@ -60,13 +60,10 @@ export class StorageSystem extends GameSystemWithFilter {
      * @param {MapChunkView} chunk
      */
     drawChunk(parameters, chunk) {
-        const contents = chunk.containedEntitiesByLayer.regular;
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
+        const contents = chunk.tileTypes.get("Storage");
+
+        for (let [, entity] of contents) {
             const storageComp = entity.components.Storage;
-            if (!storageComp) {
-                continue;
-            }
 
             const storedItem = storageComp.storedItem;
             if (!storedItem) {

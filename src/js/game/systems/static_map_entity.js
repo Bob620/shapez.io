@@ -30,10 +30,9 @@ export class StaticMapEntitySystem extends GameSystem {
             return;
         }
 
-        const contents = chunk.containedEntitiesByLayer.regular;
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
+        const contents = chunk.tileTypes.get("StaticMapEntity");
 
+        for (let [, entity] of contents) {
             const staticComp = entity.components.StaticMapEntity;
             const sprite = staticComp.getSprite();
             if (sprite) {
@@ -60,22 +59,17 @@ export class StaticMapEntitySystem extends GameSystem {
         }
 
         const drawnUids = new Set();
-        const contents = chunk.wireContents;
-        for (let y = 0; y < globalConfig.mapChunkSize; ++y) {
-            for (let x = 0; x < globalConfig.mapChunkSize; ++x) {
-                const entity = contents[x][y];
-                if (entity) {
-                    if (drawnUids.has(entity.uid)) {
-                        continue;
-                    }
-                    drawnUids.add(entity.uid);
-                    const staticComp = entity.components.StaticMapEntity;
+        for (let [, entity] of chunk.wireContents) {
+            if (drawnUids.has(entity.uid)) {
+                continue;
+            }
 
-                    const sprite = staticComp.getSprite();
-                    if (sprite) {
-                        staticComp.drawSpriteOnBoundsClipped(parameters, sprite, 2);
-                    }
-                }
+            drawnUids.add(entity.uid);
+            const staticComp = entity.components.StaticMapEntity;
+
+            const sprite = staticComp.getSprite();
+            if (sprite) {
+                staticComp.drawSpriteOnBoundsClipped(parameters, sprite, 2);
             }
         }
     }

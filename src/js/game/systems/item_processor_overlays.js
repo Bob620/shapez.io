@@ -30,9 +30,9 @@ export class ItemProcessorOverlaysSystem extends GameSystem {
      * @param {MapChunkView} chunk
      */
     drawChunk(parameters, chunk) {
-        const contents = chunk.containedEntitiesByLayer.regular;
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
+        const contents = chunk.tileTypes.get("ItemProcessor");
+
+        for (let [, entity] of contents) {
             const processorComp = entity.components.ItemProcessor;
             const filterComp = entity.components.Filter;
 

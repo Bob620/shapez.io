@@ -30,14 +30,11 @@ export class LeverSystem extends GameSystemWithFilter {
      * @param {MapChunkView} chunk
      */
     drawChunk(parameters, chunk) {
-        const contents = chunk.containedEntitiesByLayer.regular;
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
-            const leverComp = entity.components.Lever;
-            if (leverComp) {
-                const sprite = leverComp.toggled ? this.spriteOn : this.spriteOff;
-                entity.components.StaticMapEntity.drawSpriteOnBoundsClipped(parameters, sprite);
-            }
+        const contents = chunk.tileTypes.get("Lever");
+
+        for (let [, entity] of contents) {
+            const sprite = entity.components.Lever.toggled ? this.spriteOn : this.spriteOff;
+            entity.components.StaticMapEntity.drawSpriteOnBoundsClipped(parameters, sprite);
         }
     }
 }

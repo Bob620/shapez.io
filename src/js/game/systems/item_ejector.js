@@ -304,14 +304,10 @@ export class ItemEjectorSystem extends GameSystemWithFilter {
             return;
         }
 
-        const contents = chunk.containedEntitiesByLayer.regular;
+        const contents = chunk.tileTypes.get("ItemEjector");
 
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
+        for (let [, entity] of contents) {
             const ejectorComp = entity.components.ItemEjector;
-            if (!ejectorComp) {
-                continue;
-            }
 
             const staticComp = entity.components.StaticMapEntity;
 

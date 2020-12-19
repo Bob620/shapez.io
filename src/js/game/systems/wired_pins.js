@@ -155,14 +155,10 @@ export class WiredPinsSystem extends GameSystemWithFilter {
      * @param {MapChunkView} chunk
      */
     drawChunk(parameters, chunk) {
-        const contents = chunk.containedEntities;
+        const contents = chunk.tileTypes.get("WiredPins");
 
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
+        for (let [, entity] of contents) {
             const pinsComp = entity.components.WiredPins;
-            if (!pinsComp) {
-                continue;
-            }
 
             const staticComp = entity.components.StaticMapEntity;
             const slots = pinsComp.slots;

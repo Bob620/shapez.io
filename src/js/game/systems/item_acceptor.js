@@ -66,13 +66,10 @@ export class ItemAcceptorSystem extends GameSystemWithFilter {
             return;
         }
 
-        const contents = chunk.containedEntitiesByLayer.regular;
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
+        const contents = chunk.tileTypes.get("ItemAcceptor");
+
+        for (let [, entity] of contents) {
             const acceptorComp = entity.components.ItemAcceptor;
-            if (!acceptorComp) {
-                continue;
-            }
 
             const staticComp = entity.components.StaticMapEntity;
             for (let animIndex = 0; animIndex < acceptorComp.itemConsumptionAnimations.length; ++animIndex) {

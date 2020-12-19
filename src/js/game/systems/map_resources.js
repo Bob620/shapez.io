@@ -48,35 +48,20 @@ export class MapResourcesSystem extends GameSystem {
             }
         } else {
             // HIGH QUALITY: Draw all items
-            const layer = chunk.lowerLayer;
-            const layerEntities = chunk.contents;
-            for (let x = 0; x < globalConfig.mapChunkSize; ++x) {
-                const row = layer[x];
-                const rowEntities = layerEntities[x];
-                const worldX = (chunk.tileX + x) * globalConfig.tileSize;
-                for (let y = 0; y < globalConfig.mapChunkSize; ++y) {
-                    const lowerItem = row[y];
-
-                    const entity = rowEntities[y];
-                    if (entity) {
-                        // Don't draw if there is an entity above
-                        continue;
-                    }
-
-                    if (lowerItem) {
-                        const worldY = (chunk.tileY + y) * globalConfig.tileSize;
-
-                        const destX = worldX + globalConfig.halfTileSize;
-                        const destY = worldY + globalConfig.halfTileSize;
-
-                        lowerItem.drawItemCenteredClipped(
-                            destX,
-                            destY,
-                            parameters,
-                            globalConfig.defaultItemDiameter
-                        );
-                    }
+            for (const [pos, item] of chunk.lowerLayer) {
+                // Don't draw if there is an entity above
+                if (chunk.contents.has(pos)) {
+                    continue;
                 }
+
+                const [x, y] = pos.split("|").map(parseInt);
+                const worldX = (chunk.tileX + x) * globalConfig.tileSize;
+                const worldY = (chunk.tileY + y) * globalConfig.tileSize;
+
+                const destX = worldX + globalConfig.halfTileSize;
+                const destY = worldY + globalConfig.halfTileSize;
+
+                item.drawItemCenteredClipped(destX, destY, parameters, globalConfig.defaultItemDiameter);
             }
         }
         parameters.context.globalAlpha = 1;
@@ -101,16 +86,10 @@ export class MapResourcesSystem extends GameSystem {
         }
 
         context.globalAlpha = 0.5;
-        const layer = chunk.lowerLayer;
-        for (let x = 0; x < globalConfig.mapChunkSize; ++x) {
-            const row = layer[x];
-            for (let y = 0; y < globalConfig.mapChunkSize; ++y) {
-                const item = row[y];
-                if (item) {
-                    context.fillStyle = item.getBackgroundColorAsResource();
-                    context.fillRect(x, y, 1, 1);
-                }
-            }
+        for (let [pos, item] of chunk.lowerLayer) {
+            const [x, y] = pos.split("|");
+            context.fillStyle = item.getBackgroundColorAsResource();
+            context.fillRect(parseInt(x), parseInt(y), 1, 1);
         }
 
         if (this.root.app.settings.getAllSettings().displayChunkBorders) {

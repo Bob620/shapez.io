@@ -91,4 +91,63 @@ export class EntityComponentStorage {
 
         /* typehints:end */
     }
+
+    /**
+     * Returns current component types
+     * @returns {Array<string>}
+     */
+    GetTypes() {
+        let types = [];
+        if (this.StaticMapEntity) types.push("StaticMapEntity");
+        if (this.Belt) types.push("Belt");
+        if (this.ItemEjector) types.push("ItemEjector");
+        if (this.ItemAcceptor) types.push("ItemAcceptor");
+        if (this.Miner) types.push("Miner");
+        if (this.ItemProcessor) types.push("ItemProcessor");
+        if (this.UndergroundBelt) types.push("UndergroundBelt");
+        if (this.Hub) types.push("Hub");
+        if (this.Storage) types.push("Storage");
+        if (this.WiredPins) types.push("WiredPins");
+        if (this.BeltUnderlays) types.push("BeltUnderlays");
+        if (this.Wire) types.push("Wire");
+        if (this.ConstantSignal) types.push("ConstantSignal");
+        if (this.LogicGate) types.push("LogicGate");
+        if (this.Lever) types.push("Lever");
+        if (this.WireTunnel) types.push("WireTunnel");
+        if (this.Display) types.push("Display");
+        if (this.BeltReader) types.push("BeltReader");
+        if (this.Filter) types.push("Filter");
+        if (this.ItemProducer) types.push("ItemProducer");
+
+        return types;
+    }
+
+    /**
+     * Returns all possible component types
+     * @returns {Array<string>}
+     */
+    static GetAllTypes() {
+        return [
+            "StaticMapEntity",
+            "Belt",
+            "ItemEjector",
+            "ItemAcceptor",
+            "Miner",
+            "ItemProcessor",
+            "UndergroundBelt",
+            "Hub",
+            "Storage",
+            "WiredPins",
+            "BeltUnderlays",
+            "Wire",
+            "ConstantSignal",
+            "LogicGate",
+            "Lever",
+            "WireTunnel",
+            "Display",
+            "BeltReader",
+            "Filter",
+            "ItemProducer",
+        ];
+    }
 }

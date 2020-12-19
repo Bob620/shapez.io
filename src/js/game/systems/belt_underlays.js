@@ -225,14 +225,10 @@ export class BeltUnderlaysSystem extends GameSystemWithFilter {
         // Limit speed to avoid belts going backwards
         const speedMultiplier = Math.min(this.root.hubGoals.getBeltBaseSpeed(), 10);
 
-        const contents = chunk.containedEntitiesByLayer.regular;
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
-            const underlayComp = entity.components.BeltUnderlays;
-            if (!underlayComp) {
-                continue;
-            }
+        const contents = chunk.tileTypes.get("BeltUnderlays");
 
+        for (let [, entity] of contents) {
+            const underlayComp = entity.components.BeltUnderlays;
             const staticComp = entity.components.StaticMapEntity;
             const underlays = underlayComp.underlays;
             for (let i = 0; i < underlays.length; ++i) {

@@ -58,39 +58,37 @@ export class DisplaySystem extends GameSystemWithFilter {
      * @param {MapChunkView} chunk
      */
     drawChunk(parameters, chunk) {
-        const contents = chunk.containedEntitiesByLayer.regular;
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
-            if (entity && entity.components.Display) {
-                const pinsComp = entity.components.WiredPins;
-                const network = pinsComp.slots[0].linkedNetwork;
+        const contents = chunk.tileTypes.get("WiredPins");
 
-                if (!network || !network.hasValue()) {
-                    continue;
-                }
+        for (let [, entity] of contents) {
+            const pinsComp = entity.components.WiredPins;
+            const network = pinsComp.slots[0].linkedNetwork;
 
-                const value = this.getDisplayItem(network.currentValue);
+            if (!network || !network.hasValue()) {
+                continue;
+            }
 
-                if (!value) {
-                    continue;
-                }
+            const value = this.getDisplayItem(network.currentValue);
 
-                const origin = entity.components.StaticMapEntity.origin;
-                if (value.getItemType() === "color") {
-                    this.displaySprites[/** @type {ColorItem} */ (value).color].drawCachedCentered(
-                        parameters,
-                        (origin.x + 0.5) * globalConfig.tileSize,
-                        (origin.y + 0.5) * globalConfig.tileSize,
-                        globalConfig.tileSize
-                    );
-                } else if (value.getItemType() === "shape") {
-                    value.drawItemCenteredClipped(
-                        (origin.x + 0.5) * globalConfig.tileSize,
-                        (origin.y + 0.5) * globalConfig.tileSize,
-                        parameters,
-                        30
-                    );
-                }
+            if (!value) {
+                continue;
+            }
+
+            const origin = entity.components.StaticMapEntity.origin;
+            if (value.getItemType() === "color") {
+                this.displaySprites[/** @type {ColorItem} */ (value).color].drawCachedCentered(
+                    parameters,
+                    (origin.x + 0.5) * globalConfig.tileSize,
+                    (origin.y + 0.5) * globalConfig.tileSize,
+                    globalConfig.tileSize
+                );
+            } else if (value.getItemType() === "shape") {
+                value.drawItemCenteredClipped(
+                    (origin.x + 0.5) * globalConfig.tileSize,
+                    (origin.y + 0.5) * globalConfig.tileSize,
+                    parameters,
+                    30
+                );
             }
         }
     }

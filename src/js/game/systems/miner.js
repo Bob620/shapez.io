@@ -163,14 +163,10 @@ export class MinerSystem extends GameSystemWithFilter {
      * @param {MapChunkView} chunk
      */
     drawChunk(parameters, chunk) {
-        const contents = chunk.containedEntitiesByLayer.regular;
+        const contents = chunk.tileTypes.get("Miner");
 
-        for (let i = 0; i < contents.length; ++i) {
-            const entity = contents[i];
+        for (let [, entity] of contents) {
             const minerComp = entity.components.Miner;
-            if (!minerComp) {
-                continue;
-            }
 
             const staticComp = entity.components.StaticMapEntity;
             if (!minerComp.cachedMinedItem) {

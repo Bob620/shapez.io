@@ -131,9 +131,7 @@ export class MapChunkView extends MapChunk {
      */
     generateOverlayBuffer(canvas, context, w, h, dpi) {
         context.fillStyle =
-            this.containedEntities.length > 0
-                ? THEME.map.chunkOverview.filled
-                : THEME.map.chunkOverview.empty;
+            this.entities > 0 ? THEME.map.chunkOverview.filled : THEME.map.chunkOverview.empty;
         context.fillRect(0, 0, w, h);
 
         if (this.root.app.settings.getAllSettings().displayChunkBorders) {
@@ -142,81 +140,53 @@ export class MapChunkView extends MapChunk {
             context.fillRect(0, 1, 1, h);
         }
 
-        for (let x = 0; x < globalConfig.mapChunkSize; ++x) {
-            const lowerArray = this.lowerLayer[x];
-            const upperArray = this.contents[x];
-            for (let y = 0; y < globalConfig.mapChunkSize; ++y) {
-                const upperContent = upperArray[y];
-                if (upperContent) {
-                    const staticComp = upperContent.components.StaticMapEntity;
-                    const data = getBuildingDataFromCode(staticComp.code);
-                    const metaBuilding = data.metaInstance;
+        // Draw lower content first since it "shines" through
+        for (const [pos, content] of this.lowerLayer) {
+            const [x, y] = pos.split("|").map(parseInt);
 
-                    const overlayMatrix = metaBuilding.getSpecialOverlayRenderMatrix(
-                        staticComp.rotation,
-                        data.rotationVariant,
-                        data.variant,
-                        upperContent
-                    );
+            context.fillStyle = content.getBackgroundColorAsResource();
+            context.fillRect(
+                x * CHUNK_OVERLAY_RES,
+                y * CHUNK_OVERLAY_RES,
+                CHUNK_OVERLAY_RES,
+                CHUNK_OVERLAY_RES
+            );
+        }
 
-                    if (overlayMatrix) {
-                        // Draw lower content first since it "shines" through
-                        const lowerContent = lowerArray[y];
-                        if (lowerContent) {
-                            context.fillStyle = lowerContent.getBackgroundColorAsResource();
-                            context.fillRect(
-                                x * CHUNK_OVERLAY_RES,
-                                y * CHUNK_OVERLAY_RES,
-                                CHUNK_OVERLAY_RES,
-                                CHUNK_OVERLAY_RES
-                            );
+        for (const [pos, content] of this.contents) {
+            const [x, y] = pos.split("|").map(parseInt);
+
+            console.log(pos);
+            console.log(content);
+            const staticComp = content.components.StaticMapEntity;
+            const data = getBuildingDataFromCode(staticComp.code);
+            const metaBuilding = data.metaInstance;
+
+            const overlayMatrix = metaBuilding.getSpecialOverlayRenderMatrix(
+                staticComp.rotation,
+                data.rotationVariant,
+                data.variant,
+                content
+            );
+
+            context.fillStyle = metaBuilding.getSilhouetteColor(data.variant, data.rotationVariant);
+
+            if (overlayMatrix) {
+                for (let dx = 0; dx < 3; ++dx) {
+                    for (let dy = 0; dy < 3; ++dy) {
+                        const isFilled = overlayMatrix[dx + dy * 3];
+                        if (isFilled) {
+                            context.fillRect(x * CHUNK_OVERLAY_RES + dx, y * CHUNK_OVERLAY_RES + dy, 1, 1);
                         }
-
-                        context.fillStyle = metaBuilding.getSilhouetteColor(
-                            data.variant,
-                            data.rotationVariant
-                        );
-                        for (let dx = 0; dx < 3; ++dx) {
-                            for (let dy = 0; dy < 3; ++dy) {
-                                const isFilled = overlayMatrix[dx + dy * 3];
-                                if (isFilled) {
-                                    context.fillRect(
-                                        x * CHUNK_OVERLAY_RES + dx,
-                                        y * CHUNK_OVERLAY_RES + dy,
-                                        1,
-                                        1
-                                    );
-                                }
-                            }
-                        }
-
-                        continue;
-                    } else {
-                        context.fillStyle = metaBuilding.getSilhouetteColor(
-                            data.variant,
-                            data.rotationVariant
-                        );
-                        context.fillRect(
-                            x * CHUNK_OVERLAY_RES,
-                            y * CHUNK_OVERLAY_RES,
-                            CHUNK_OVERLAY_RES,
-                            CHUNK_OVERLAY_RES
-                        );
-
-                        continue;
                     }
                 }
-
-                const lowerContent = lowerArray[y];
-                if (lowerContent) {
-                    context.fillStyle = lowerContent.getBackgroundColorAsResource();
-                    context.fillRect(
-                        x * CHUNK_OVERLAY_RES,
-                        y * CHUNK_OVERLAY_RES,
-                        CHUNK_OVERLAY_RES,
-                        CHUNK_OVERLAY_RES
-                    );
-                }
+            } else {
+                context.fillRect(
+                    x * CHUNK_OVERLAY_RES,
+                    y * CHUNK_OVERLAY_RES,
+                    CHUNK_OVERLAY_RES,
+                    CHUNK_OVERLAY_RES
+                );
             }
         }
 
@@ -226,21 +196,15 @@ export class MapChunkView extends MapChunk {
             context.fillStyle = THEME.map.wires.overlayColor;
             context.fillRect(0, 0, w, h);
 
-            for (let x = 0; x < globalConfig.mapChunkSize; ++x) {
-                const wiresArray = this.wireContents[x];
-                for (let y = 0; y < globalConfig.mapChunkSize; ++y) {
-                    const content = wiresArray[y];
-                    if (!content) {
-                        continue;
-                    }
-                    MapChunkView.drawSingleWiresOverviewTile({
-                        context,
-                        x: x * CHUNK_OVERLAY_RES,
-                        y: y * CHUNK_OVERLAY_RES,
-                        entity: content,
-                        tileSizePixels: CHUNK_OVERLAY_RES,
-                    });
-                }
+            for (const [pos, content] of this.wireContents) {
+                const [x, y] = pos.split("|").map(parseInt);
+                MapChunkView.drawSingleWiresOverviewTile({
+                    context,
+                    x: x * CHUNK_OVERLAY_RES,
+                    y: y * CHUNK_OVERLAY_RES,
+                    entity: content,
+                    tileSizePixels: CHUNK_OVERLAY_RES,
+                });
             }
         }
     }
