@@ -3,13 +3,14 @@ import { STOP_PROPAGATION } from "../../../core/signal";
 import { TrackedState } from "../../../core/tracked_state";
 import { makeDiv } from "../../../core/utils";
 import { Vector } from "../../../core/vector";
-import { SOUNDS } from "../../../platform/sound";
 import { T } from "../../../translations";
-import { Blueprint } from "../../blueprint";
 import { enumMouseButton } from "../../camera";
 import { KEYMAPPINGS } from "../../key_action_mapper";
 import { BaseHUDPart } from "../base_hud_part";
 import { DynamicDomAttach } from "../dynamic_dom_attach";
+import { Blueprint } from "../../blueprint";
+import { SOUNDS } from "../../../platform/sound";
+import { Entity } from "../../entity";
 
 export class HUDBlueprintPlacer extends BaseHUDPart {
     createElements(parent) {
@@ -27,6 +28,7 @@ export class HUDBlueprintPlacer extends BaseHUDPart {
     }
 
     initialize() {
+        // @ts-ignore
         this.root.hud.signals.buildingsSelectedForCopy.add(this.createBlueprintFromBuildings, this);
 
         /** @type {TypedTrackedState<Blueprint?>} */
@@ -108,25 +110,24 @@ export class HUDBlueprintPlacer extends BaseHUDPart {
                 this.abortPlacement();
                 return STOP_PROPAGATION;
             }
-        } else if (button === enumMouseButton.left) {
-            const blueprint = this.currentBlueprint.get();
-            if (!blueprint) {
-                return;
-            }
+        }
 
-            if (!blueprint.canAfford(this.root)) {
-                this.root.soundProxy.playUiError();
-                return;
-            }
+        const blueprint = this.currentBlueprint.get();
+        if (!blueprint) {
+            return;
+        }
 
-            const worldPos = this.root.camera.screenToWorld(pos);
-            const tile = worldPos.toTileSpace();
-            if (blueprint.tryPlace(this.root, tile)) {
-                const cost = blueprint.getCost();
-                this.root.hubGoals.takeShapeByKey(this.root.gameMode.getBlueprintShapeKey(), cost);
-                this.root.soundProxy.playUi(SOUNDS.placeBuilding);
-            }
-            return STOP_PROPAGATION;
+        if (!blueprint.canAfford(this.root)) {
+            this.root.soundProxy.playUiError();
+            return;
+        }
+
+        const worldPos = this.root.camera.screenToWorld(pos);
+        const tile = worldPos.toTileSpace();
+        if (blueprint.tryPlace(this.root, tile)) {
+            const cost = blueprint.getCost();
+            this.root.hubGoals.takeShapeByKey(this.root.gameMode.getBlueprintShapeKey(), cost);
+            this.root.soundProxy.playUi(SOUNDS.placeBuilding);
         }
     }
 
@@ -142,13 +143,13 @@ export class HUDBlueprintPlacer extends BaseHUDPart {
 
     /**
      * Called when an array of bulidings was selected
-     * @param {Array<number>} uids
+     * @param {Array<Entity>} entities
      */
-    createBlueprintFromBuildings(uids) {
-        if (uids.length === 0) {
+    createBlueprintFromBuildings(entities) {
+        if (entities.length === 0) {
             return;
         }
-        this.currentBlueprint.set(Blueprint.fromUids(this.root, uids));
+        this.currentBlueprint.set(Blueprint.fromEntities(entities));
     }
 
     /**
